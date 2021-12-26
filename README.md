@@ -1,11 +1,10 @@
 ## Requirements
-Node 14
-Git
-Docker
+- Node 14
+- Git
+- Docker
 
 ## Common setup
 Clone the repo and install the dependencies.
-
 git clone https://github.com/nazmoonnoor/domain-adviser-api.git
 cd domain-adviser-api
 
