@@ -1,9 +1,16 @@
+# A domain adviser app built with Node.js, typescript, postgres and a third party api service 
 ## Requirements
 - Node 14
 - Git
 - Docker
 
-## Common setup
+## Notes
+Note 1: Make sure you rename .env.example to .env 
+Note 2: This repository includes the postman collection for the finished API
+Note 3: Application will run with `docker-compose up -d --build` command as it creates containers for both the node-app & postgres-db. 
+Note 4: But you can also run with `yarn dev`. In that case you have to run the postgres-db first. (commmand is in below)
+
+## Git clone
 Clone the repo and install the dependencies.
 git clone https://github.com/nazmoonnoor/domain-adviser-api.git
 cd domain-adviser-api
@@ -19,7 +26,7 @@ cd domain-adviser-api
 `docker-compose down -d` => shutdown containers. 
 `docker-compose down -d -v` => shutdown containers including volume. 
 
-## Command to run only the db
+## docker-compose command to run only the postgres-db
 
 `docker-compose up -d --build db`
 
