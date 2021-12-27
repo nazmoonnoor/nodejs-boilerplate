@@ -5,7 +5,7 @@
 - Docker
 
 ## Notes
-- Note 1: Make sure you rename .env.example to .env 
+- Note 1: Make sure to rename .env.example to .env 
 - Note 2: This repository includes the postman collection for the finished API
 - Note 3: Application will run with `docker-compose up -d --build` command as it creates containers for both the node-app & postgres-db. 
 - Note 4: But you can also run with `yarn dev`. In that case you have to run the postgres-db first. (commmand is in below)
