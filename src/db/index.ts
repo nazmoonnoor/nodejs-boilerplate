@@ -1,7 +1,10 @@
 import path from "path";
 import { Pool } from "pg";
 import { migrate } from "postgres-migrations";
+import * as dotenv from "dotenv";
 import log from "../utils/logger";
+
+dotenv.config();
 
 const poolConfig = {
     database: process.env.DATABASE,
@@ -28,10 +31,10 @@ class Database {
         try {
             await migrate(
                 { client },
-                path.resolve(__dirname, "migrations/sql")
+                path.resolve(__dirname, "migrations\\sql")
             );
         } catch (err) {
-            log.err("migation fails", err);
+            log.info("migation fails", err);
         } finally {
             client.release();
         }
