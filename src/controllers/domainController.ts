@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { DomainInput } from "../models/domain";
 import { DomainResultInput } from "../models/domainResult";
 import DomainService from "../services/domainServices";
+import logger from "../utils/logger";
 import { retryFetching } from "../utils/retry";
 
 class DomainController {
@@ -21,46 +22,53 @@ class DomainController {
         // Saves domain information to db
         await DomainService.saveDomain(domainInput);
 
-        // Process a retry operation
-        // Until it can fetch/download the details of batch data from scam adviser api
-        const p = () => {
-            return DomainService.getDomainResult(data.batch);
-        };
-
-        const batch = await retryFetching(p, 10, 500);
-        return {
-            batchId: data.batch,
-            batch,
-        };
+        return data.batch;
     };
 
     createDomainHandler = async (req: Request, res: Response) => {
         const response = await this.createBatch(req.body && req.body.domains);
 
-        const { batchId } = response;
-        const inputs: DomainResultInput[] = [];
-        const d = response.batch;
-        const keys = Object.keys(d);
-        const values: any = Object.values(d);
+        const batchId = response;
+        res.sendStatus(201);
 
-        for (let i = 0; i < keys.length; i++) {
-            const domainName = keys[i];
-            inputs.push({
-                id: null,
-                batch_id: batchId,
-                name: domainName,
-                domain: domainName,
-                created_at: new Date(Date.now()).toISOString(),
-                status: values[i].status,
-                site_response: values[i].site_response,
-                score: values[i].score,
-                blacklisted: values[i].blacklisted,
-                valid_ssl: values[i].valid_ssl,
-            });
-        }
+        // Scam adviser process a batch operation, which takes time to respond from their server
+        // This operation wait for it to finish and then save data to db
+        const performBatchOperation = async () => {
+            // Process a retry operation
+            // Until it can fetch/download the details of batch data from scam adviser api
+            const p = () => {
+                return DomainService.getDomainResult(batchId);
+            };
 
-        await DomainService.saveDomainResult(inputs);
-        return res.sendStatus(201);
+            const batch = await retryFetching(p, 10, 500);
+
+            const inputs: DomainResultInput[] = [];
+            const keys = Object.keys(batch);
+            const values: any = Object.values(batch);
+
+            for (let i = 0; i < keys.length; i++) {
+                const domainName = keys[i];
+                inputs.push({
+                    id: null,
+                    batch_id: batchId,
+                    name: domainName,
+                    domain: domainName,
+                    created_at: new Date(Date.now()).toISOString(),
+                    status: values[i].status,
+                    site_response: values[i].site_response,
+                    score: values[i].score,
+                    blacklisted: values[i].blacklisted,
+                    valid_ssl: values[i].valid_ssl,
+                });
+            }
+
+            await DomainService.saveDomainResult(inputs);
+            logger.info("Save domain data to db successfully");
+        };
+
+        setTimeout(() => {
+            performBatchOperation();
+        }, 0);
     };
 }
 

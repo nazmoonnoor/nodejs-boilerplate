@@ -6,6 +6,6 @@ import { use } from "../middleware/errorHandler";
 const router = express.Router();
 
 router.post("/create", use(DomainController.createDomainHandler));
-// router.get("/absences", use(memberController.getAbsences));
+router.get("/absences", use(memberController.getAbsences));
 
 export default router;
