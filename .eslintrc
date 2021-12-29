@@ -28,7 +28,22 @@
   ],
   "rules": {
     //"promise/catch-or-return":0,
-    "prettier/prettier": ["error", { "parser": "flow" }],
+    "no-plusplus": 0,
+    "class-methods-use-this": 0,
+    "no-console": 0,
+    "@typescript-eslint/no-explicit-any": 0,
+    "consistent-return": 0,
+    "prettier/prettier": [
+      "error",
+      {
+        "trailingComma": "es5",
+        "singleQuote": false,
+        "printWidth": 100,
+        "tabWidth": 4,
+        "semi": true,
+        "endOfLine": "auto"
+      }
+    ],
     "import/prefer-default-export": "off",
     "no-use-before-define": [
       "error",
@@ -52,7 +67,7 @@
   },
   "settings": {
     "import/parsers": {
-      "@typescript-eslint/parser": [".js",".ts"]
+      "@typescript-eslint/parser": [".js", ".ts"]
     },
     "import/resolver": {
       "typescript": {

@@ -4,10 +4,20 @@
     "enable": false
   },
   "[typescript]": {
-    "editor.formatOnPaste": false,
-    "editor.formatOnSave": true
+    "editor.formatOnSave": false,
+    "editor.defaultFormatter": null
   },
-  "editor.formatOnSave": true,
+  "[javascript]": {
+    "editor.formatOnSave": false,
+    "editor.defaultFormatter": null
+  },
+  "javascript.validate.enable": false, //disable all built-in syntax checking
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": true,
+    "source.fixAll.tslint": true,
+    "source.organizeImports": true
+  },
+  "eslint.alwaysShowStatus": true,
   /* Auto format based on prettier config on save*/
   "editor.defaultFormatter": "esbenp.prettier-vscode"
 }

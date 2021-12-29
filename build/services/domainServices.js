@@ -31,39 +31,63 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.saveDomainResult = exports.saveDomain = exports.getDomainResult = exports.createBatch = void 0;
+const axios_1 = __importDefault(require("axios"));
 const dotenv = __importStar(require("dotenv"));
-const path_1 = __importDefault(require("path"));
-const pg_1 = require("pg");
-const postgres_migrations_1 = require("postgres-migrations");
 const logger_1 = __importDefault(require("../utils/logger"));
 dotenv.config();
-const poolConfig = {
-    database: process.env.DATABASE,
-    user: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
-    host: process.env.DB_HOST,
-    port: Number(process.env.DB_PORT),
-    max: Number(process.env.DB_POOL_SIZE),
-    idleTimeoutMillis: Number(process.env.DB_POOL_CLIENT_IDLE_TIMEOUT),
-    connectionTimeoutMillis: Number(process.env.DB_POOL_CLIENT_CONNECTION_TIMEOUT),
-};
-class Database {
-    constructor() {
-        this.runMigrations = () => __awaiter(this, void 0, void 0, function* () {
-            const client = yield this.pool.connect();
-            try {
-                yield (0, postgres_migrations_1.migrate)({ client }, path_1.default.resolve(__dirname, "migrations\\sql"));
-            }
-            catch (err) {
-                logger_1.default.info("migation fails", err);
-            }
-            finally {
-                client.release();
-            }
+function createBatch(input) {
+    return __awaiter(this, void 0, void 0, function* () {
+        // Post to scamadviser batch api
+        return axios_1.default
+            .post(`${process.env.API_BASEURI}/v2/trust/batch/create`, {
+            apikey: process.env.API_KEY,
+            domains: input.domains,
+        })
+            .then((response) => {
+            return response;
+        })
+            .catch((error) => {
+            throw new Error(error);
         });
-        this.pool = new pg_1.Pool(poolConfig);
-        this.client = new pg_1.Client(poolConfig);
-    }
+    });
 }
-const db = new Database();
-exports.default = db;
+exports.createBatch = createBatch;
+function getDomainResult(batch_id) {
+    return __awaiter(this, void 0, void 0, function* () {
+        // Get scamadviser download api
+        return axios_1.default
+            .get(`${process.env.API_BASEURI}/v2/trust/batch/download/?apikey=${process.env.API_Key}batch=${batch_id}`)
+            .then((response) => {
+            return response;
+        })
+            .catch((error) => {
+            logger_1.default.error(error);
+        });
+    });
+}
+exports.getDomainResult = getDomainResult;
+function saveDomain(input) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            // Save to db
+            // const domain = await Domain.create(input);
+        }
+        catch (e) {
+            throw new Error(e);
+        }
+    });
+}
+exports.saveDomain = saveDomain;
+function saveDomainResult(input) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            // Save to db
+            // const domain = await Domain.create(input);
+        }
+        catch (e) {
+            throw new Error(e);
+        }
+    });
+}
+exports.saveDomainResult = saveDomainResult;
