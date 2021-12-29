@@ -8,6 +8,12 @@ dotenv.config();
 class DomainService {
     async createBatch(domains: string[]): Promise<any> {
         // Post to scamadviser batch api
+        const config = {
+            headers: {
+                "Content-Type": "application/json",
+            },
+        };
+
         return axios.post(`${process.env.API_BASEURI}/v2/trust/batch/create`, {
             apikey: process.env.API_KEY,
             domains,
@@ -25,20 +31,39 @@ class DomainService {
         try {
             // Save domains to db
             await Domain.create(input);
-        } catch (e: any) {
-            throw new Error(e);
+        } catch (err: any) {
+            throw new Error(err);
         }
     }
 
+    // Save domain results to db
     async saveDomainResult(inputs: DomainResultInput[]): Promise<any> {
         try {
-            // Save domain results to db
             for (let i = 0; i < inputs.length; i++) {
                 // eslint-disable-next-line no-await-in-loop
                 await DomainResult.create(inputs[i]);
             }
-        } catch (e: any) {
-            throw new Error(e);
+        } catch (err: any) {
+            throw new Error(err);
+        }
+    }
+
+    async getDomainResultByUrl(url: string): Promise<any> {
+        try {
+            const result = await DomainResult.findByUrl(url);
+            return result;
+        } catch (err: any) {
+            throw new Error(err);
+        }
+    }
+
+    async getDomainResultByDates(dates: any): Promise<any> {
+        try {
+            const { startDate, endDate } = dates;
+            const result = await DomainResult.findByDates(startDate, endDate);
+            return result;
+        } catch (err: any) {
+            throw new Error(err);
         }
     }
 }

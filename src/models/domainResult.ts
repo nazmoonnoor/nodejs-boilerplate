@@ -1,6 +1,4 @@
-import { Query } from "pg";
 import db from "../db";
-import logger from "../utils/logger";
 
 export interface DomainResultInput {
     id: any;
@@ -26,11 +24,12 @@ export interface DomainResultInput {
 
 const DomainResult = {
     create(input: DomainResultInput): any {},
-    findById(id: number): any {},
+    findByUrl(url: string): any {},
+    findByDates(startDate: string, endDate: string): any {},
 };
 
 // Create domain
-DomainResult.create = async (input: DomainResultInput) => {
+DomainResult.create = async (input: DomainResultInput): Promise<any> => {
     db.initPool();
     await db.pool.connect();
     await db.pool
@@ -48,29 +47,47 @@ DomainResult.create = async (input: DomainResultInput) => {
                 input.valid_ssl,
             ]
         )
-        .then((results) => results.rows)
-        .catch((e) => {
-            throw new Error(e);
+        .then((results) => {
+            return results.rows;
+        })
+        .catch((err) => {
+            throw new Error(err);
         })
         .finally(() => {
             if (db && db.pool) db.pool.end();
         });
 };
 
-DomainResult.findById = (id: number) => {
-    const query = new Query("SELECT * FROM domains WHERE id = $1::text", [id]);
+DomainResult.findByUrl = async (url: string): Promise<any> => {
+    db.initPool();
+    await db.pool.connect();
+    try {
+        const { rows } = await db.pool.query(
+            "SELECT * FROM domain_results WHERE domain = $1::text",
+            [url]
+        );
+        return rows;
+    } catch (err: any) {
+        throw new Error(err);
+    } finally {
+        if (db && db.pool) db.pool.end();
+    }
+};
 
-    const result = db.client.query(query);
-
-    query.on("row", (row) => {
-        logger.info("row!", row); // { name: 'brianc' }
-    });
-    query.on("end", () => {
-        logger.info("query done");
-    });
-    query.on("error", (err) => {
-        logger.info(err.stack);
-    });
+DomainResult.findByDates = async (startDate: string, endDate: string): Promise<any> => {
+    db.initPool();
+    await db.pool.connect();
+    try {
+        const { rows } = await db.pool.query(
+            "SELECT * FROM domain_results WHERE created_at >= $1::timestamp AND created_at <= $2::timestamp",
+            [startDate, endDate]
+        );
+        return rows;
+    } catch (err: any) {
+        throw new Error(err);
+    } finally {
+        if (db && db.pool) db.pool.end();
+    }
 };
 
 export default DomainResult;

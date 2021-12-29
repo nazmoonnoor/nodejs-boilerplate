@@ -33,7 +33,7 @@ cd domain-adviser-api
 ### Common commands to build and shutdown the docker containers
 
 - `docker-compose up -d --build && docker-compose logs -f` => build with logs
-- `docker-compose down -d` => shutdown containers.
+- `docker-compose down` => shutdown containers.
 - `docker-compose down -d -v` => shutdown containers including volume.
 
 ## docker-compose command to run only the postgres-db
@@ -42,7 +42,8 @@ cd domain-adviser-api
 
 ## pg commands
 
-- `docker exec -it <container_id> /bin/sh`
+- `docker exec -it domain_adviser_db /bin/sh`
+  After running db migration
 - `psql -U postgres domain_adviser_db`
 - `\q` => quit pg shell
 - `\l` => list db

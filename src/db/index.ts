@@ -22,7 +22,12 @@ class Database {
 
     client: Client;
 
+    linuxPath = `${__dirname}/migrations/sql`;
+
+    windowsPath = path.resolve(__dirname, "migrations\\sql");
+
     constructor() {
+        logger.info(`Host: ${poolConfig.host}`);
         this.pool = new Pool(poolConfig);
         this.client = new Client(poolConfig);
     }
@@ -36,9 +41,9 @@ class Database {
     runMigrations = async (): Promise<void> => {
         const client = await this.pool.connect();
         try {
-            await migrate({ client }, path.resolve(__dirname, "migrations\\sql"));
+            await migrate({ client }, this.linuxPath);
         } catch (err) {
-            logger.info("migation fails", err);
+            logger.info(`migation fails. ${err}`);
         } finally {
             client.release();
         }

@@ -5,7 +5,9 @@ import { use } from "../middleware/errorHandler";
 
 const router = express.Router();
 
-router.post("/create", use(DomainController.createDomainHandler));
-router.get("/absences", use(memberController.getAbsences));
+router
+    .post("/create", use(DomainController.createDomainHandler))
+    .get("/", use(DomainController.getDomainByDates))
+    .get("/:url", use(DomainController.getDomainByUrl));
 
 export default router;

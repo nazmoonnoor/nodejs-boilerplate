@@ -70,6 +70,28 @@ class DomainController {
             performBatchOperation();
         }, 0);
     };
+
+    getDomainByUrl = async (req: Request, res: Response) => {
+        try {
+            const domain = await DomainService.getDomainResultByUrl(req.params.url);
+            res.send(domain);
+        } catch (err: any) {
+            throw new Error(err);
+        }
+    };
+
+    getDomainByDates = async (req: Request, res: Response) => {
+        try {
+            const domain = await DomainService.getDomainResultByDates({
+                startDate: req.query.startdate,
+                endDate: req.query.enddate,
+            });
+
+            res.send(domain);
+        } catch (err: any) {
+            throw new Error(err);
+        }
+    };
 }
 
 export default new DomainController();

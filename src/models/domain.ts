@@ -1,6 +1,4 @@
-import { Query } from "pg";
 import db from "../db";
-import logger from "../utils/logger";
 
 export interface DomainInput {
     id: any;
@@ -18,11 +16,11 @@ export interface DomainInput {
 
 const Domain = {
     create(input: DomainInput): any {},
-    findById(id: number): any {},
+    findByUrl(url: string): any {},
 };
 
 // Create domain
-Domain.create = async (input: DomainInput) => {
+Domain.create = async (input: DomainInput): Promise<any> => {
     db.initPool();
     await db.pool.connect();
     await db.pool
@@ -30,29 +28,30 @@ Domain.create = async (input: DomainInput) => {
             `INSERT into domains(batch_id, name, domains, created_at, request_status) VALUES($1, $2, $3, $4, $5)`,
             [input.batch_id, input.name, input.domains, input.created_at, input.request_status]
         )
-        .then((results) => results.rows)
-        .catch((e) => {
-            throw new Error(e);
+        .then((results) => {
+            return results.rows;
+        })
+        .catch((err) => {
+            throw new Error(err);
         })
         .finally(() => {
             if (db && db.pool) db.pool.end();
         });
 };
 
-Domain.findById = (id: number) => {
-    const query = new Query("SELECT * FROM domains WHERE id = $1::text", [id]);
-
-    const result = db.client.query(query);
-
-    query.on("row", (row) => {
-        logger.info("row!", row); // { name: 'brianc' }
-    });
-    query.on("end", () => {
-        logger.info("query done");
-    });
-    query.on("error", (err) => {
-        logger.info(err.stack);
-    });
+Domain.findByUrl = async (url: string): Promise<any> => {
+    db.initPool();
+    await db.pool.connect();
+    try {
+        const { rows } = await db.pool.query("SELECT * FROM domains WHERE domain = $1::text", [
+            url,
+        ]);
+        return rows;
+    } catch (err: any) {
+        throw new Error(err);
+    } finally {
+        if (db && db.pool) db.pool.end();
+    }
 };
 
 export default Domain;
