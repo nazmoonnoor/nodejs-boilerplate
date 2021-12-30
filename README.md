@@ -1,9 +1,11 @@
 # A domain adviser api built with Node.js, typescript, postgres and a third party api service
 
-## Goals
+## Tools
 
 - Using docker and docker-compose, so that the project can be run in any machine with little effort.
-- Using eslint/prettier so that a team can pick the solution and easily follow good coding convensions.
+- Using eslint/prettier with the goal to making code more consistent and avoiding bugs.
+- Yarn as package manager
+- Postman to execute the endpoints
 
 ## Requirements
 

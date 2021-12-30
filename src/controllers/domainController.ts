@@ -75,7 +75,8 @@ class DomainController {
     getDomainByUrl = async (req: Request, res: Response) => {
         try {
             const domain = await DomainService.getDomainResultByUrl(req.params.url);
-            res.send(domain);
+            if (domain.length > 0) res.json(domain);
+            else res.status(404).send("Domain not found");
         } catch (err: any) {
             throw new Error(err);
         }

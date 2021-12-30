@@ -51,7 +51,7 @@ DomainResult.create = async (input: DomainResultInput): Promise<any> => {
             return results.rows;
         })
         .catch((err) => {
-            throw new Error(err);
+            throw new Error(`Database might not be connected. ${err}`);
         })
         .finally(() => {
             if (db && db.pool) db.pool.end();
@@ -68,7 +68,7 @@ DomainResult.findByUrl = async (url: string): Promise<any> => {
         );
         return rows;
     } catch (err: any) {
-        throw new Error(err);
+        throw new Error(`Database might not be connected. ${err}`);
     } finally {
         if (db && db.pool) db.pool.end();
     }
@@ -84,7 +84,7 @@ DomainResult.findByDates = async (startDate: string, endDate: string): Promise<a
         );
         return rows;
     } catch (err: any) {
-        throw new Error(err);
+        throw new Error(`Database might not be connected. ${err}`);
     } finally {
         if (db && db.pool) db.pool.end();
     }
