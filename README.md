@@ -6,6 +6,7 @@
 - Using eslint/prettier with the goal to making code more consistent and avoiding bugs.
 - Yarn as package manager
 - Postman to execute the endpoints
+- jest and supertest to unit test
 
 ## Requirements
 
