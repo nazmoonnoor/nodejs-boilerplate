@@ -12,7 +12,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const axios_1 = __importDefault(require("axios"));
 const domainServices_1 = __importDefault(require("../services/domainServices"));
 const logger_1 = __importDefault(require("../utils/logger"));
 const retry_1 = require("../utils/retry");
@@ -21,7 +20,7 @@ class DomainController {
         // Creates a batch request to scam adviser api
         this.createBatch = (domains) => __awaiter(this, void 0, void 0, function* () {
             const response = yield domainServices_1.default.createBatch(domains);
-            console.log(response);
+            // console.log(response);
             const { data } = response;
             const domainInput = {
                 id: null,
@@ -75,19 +74,8 @@ class DomainController {
         });
         this.getDomainByUrl = (req, res) => __awaiter(this, void 0, void 0, function* () {
             try {
-                console.log("get started");
-                axios_1.default
-                    .get("http://api.scamadviser.cloud/v2/trust/batch/status/?apikey=KYL5KOd9EN0Hl3sQKd4oIs7OfkB6qnNz&batch=6859")
-                    .then((data) => {
-                    console.log(data);
-                    return res.json(data);
-                })
-                    .catch((err) => {
-                    console.log(err);
-                    return res.send(err);
-                });
-                // const domain = await DomainService.getDomainResultByUrl(req.params.url);
-                // res.send(domain);
+                const domain = yield domainServices_1.default.getDomainResultByUrl(req.params.url);
+                res.send(domain);
             }
             catch (err) {
                 throw new Error(err);

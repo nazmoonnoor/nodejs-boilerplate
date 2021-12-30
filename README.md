@@ -1,4 +1,9 @@
-# A domain adviser app built with Node.js, typescript, postgres and a third party api service
+# A domain adviser api built with Node.js, typescript, postgres and a third party api service
+
+## Goals
+
+- Using docker and add a docker-compose, so that the project can be run in any machine with little effort.
+- Useing eslint/prettier so that a team can pick the solution and easily follow good coding convensions.
 
 ## Requirements
 
@@ -8,10 +13,9 @@
 
 ## Notes
 
-- Note 1: Make sure to rename .env.example to .env
-- Note 2: This repository includes the postman collection for the finished API
-- Note 3: Application will run with `docker-compose up -d --build` command as it creates containers for both the node-app & postgres-db.
-- Note 4: But you can also run with `yarn dev`. In that case you have to run the postgres-db first. (commmand is in below)
+- Note 1: This repository includes the postman collection for the finished API
+- Note 2: Application will run with `docker-compose up -d --build` command as it creates docker containers for both the node-app & postgres-db.
+- Note 3: Docker compose has worked as expected. But incase it has issue, run the setup without docker. In that case you have to change .env file based on your postgres setup.
 
 ## Git clone
 
@@ -22,32 +26,32 @@ git clone https://github.com/nazmoonnoor/domain-adviser-api.git
 cd domain-adviser-api
 ```
 
-### Install node dependencies
+## Setup steps
+
+- Make a copy or rename .env.example to .env which have all the environment variable. Update SCANADVISER_KEY.
+- Run `docker-compose up -d --build`
+- Use `docker-compose down -d -v` to remove services
+
+### Setup steps (without docker-compose)
 
 - `yarn install`
+- `yarn dev`
+- Install postgres-db and change .env file based on your environment values.
 
-### Build docker containers
+### Run use cases with Postman collection
 
-- `docker-compose up -d --build`
+- Postman collection and environment json has been share on root folder. Please download them and import to postman.
+- `/healthcheck` to verify service availability
+- Run `/run-migrations` to create db tables
+- Create domain, pass a URL to the service. Example payload is given with the collection.
+- Get domain by url, will return already stored results of a domain, so that changes over time can be seen.
+- Get domain by dates, with start and end date it will return stored results from db.
 
-### Common commands to build and shutdown the docker containers
-
-- `docker-compose up -d --build && docker-compose logs -f` => build with logs
-- `docker-compose down` => shutdown containers.
-- `docker-compose down -d -v` => shutdown containers including volume.
-
-## docker-compose command to run only the postgres-db
-
-- `docker-compose up -d --build db`
-
-## pg commands
+## Docker container - pg commands
 
 - `docker exec -it domain_adviser_db /bin/sh`
   After running db migration
 - `psql -U postgres domain_adviser_db`
-- `\q` => quit pg shell
-- `\l` => list db
-- `\dt` => list database
 
 ## Available commands
 
@@ -59,7 +63,3 @@ cd domain-adviser-api
     `test:coverage` to jest coverages
     `lint` with eslint
     `lint:fix` fix the lint issues
-
-## Note: if you ruy the application using docker container and "Create domain" endpoint throws a 403 exception, on Docker settings, try to update DNS setting 8.8.8.8
-
-https://stackoverflow.com/questions/53434581/unable-to-call-external-api-from-webaplication-hosted-in-docker

@@ -33,7 +33,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const axios_1 = __importDefault(require("axios"));
 const dotenv = __importStar(require("dotenv"));
-const request_promise_1 = __importDefault(require("request-promise"));
 const domain_1 = __importDefault(require("../models/domain"));
 const domainResult_1 = __importDefault(require("../models/domainResult"));
 dotenv.config();
@@ -41,38 +40,16 @@ class DomainService {
     createBatch(domains) {
         return __awaiter(this, void 0, void 0, function* () {
             // Post to scamadviser batch api
-            // return axios.post(`${process.env.API_BASEURI}/v2/trust/batch/create`, {
-            //     apikey: process.env.API_KEY,
-            //     domains,
-            // });
-            const options = {
-                method: "POST",
-                uri: `${process.env.API_BASEURI}/v2/trust/batch/create`,
-                body: {
-                    apikey: process.env.API_KEY,
-                    domains,
-                },
-                json: true,
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: "bwejjr33333333333",
-                },
-            };
-            // return request(options);
-            (0, request_promise_1.default)(options)
-                .then(function (response) {
-                console.log(response);
-                return response;
-            })
-                .catch(function (err) {
-                console.log(err);
+            return axios_1.default.post(`${process.env.API_BASEURI}/v2/trust/batch/create`, {
+                apikey: process.env.SCANADVISER_KEY,
+                domains,
             });
         });
     }
     getDomainResult(batch_id) {
         return __awaiter(this, void 0, void 0, function* () {
             // Get scamadviser download api
-            return axios_1.default.get(`${process.env.API_BASEURI}/v2/trust/batch/download/?apikey=${process.env.API_Key}&batch=${batch_id}`);
+            return axios_1.default.get(`${process.env.API_BASEURI}/v2/trust/batch/download/?apikey=${process.env.SCANADVISER_KEY}&batch=${batch_id}`);
         });
     }
     saveDomain(input) {
