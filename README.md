@@ -29,13 +29,22 @@ git clone https://github.com/nazmoonnoor/domain-adviser-api.git
 cd domain-adviser-api
 ```
 
-## Setup steps
+## Setup steps (with docker)
 
 - Make a copy or rename .env.example to .env which have all the environment variable. Update SCANADVISER_KEY.
+
+### Batch file to install
+
+- Open up the `installer` folder
+- Run `install.bat` to install. It will install the docker containers for postgres-db and node application.
+- Run `unsinstall.bat` to shut down the services.
+
+### Alternatively use docker commands to install
+
 - Run `docker-compose up -d --build`
 - Use `docker-compose down -d -v` to remove services
 
-### Setup steps (without docker-compose)
+### Setup steps (without docker)
 
 - `yarn install`
 - `yarn dev`
