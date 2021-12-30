@@ -2,8 +2,8 @@
 
 ## Goals
 
-- Using docker and add a docker-compose, so that the project can be run in any machine with little effort.
-- Useing eslint/prettier so that a team can pick the solution and easily follow good coding convensions.
+- Using docker and docker-compose, so that the project can be run in any machine with little effort.
+- Using eslint/prettier so that a team can pick the solution and easily follow good coding convensions.
 
 ## Requirements
 
