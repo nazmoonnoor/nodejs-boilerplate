@@ -8,85 +8,102 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-const domainServices_1 = require("../services/domainServices");
+const axios_1 = __importDefault(require("axios"));
+const domainServices_1 = __importDefault(require("../services/domainServices"));
+const logger_1 = __importDefault(require("../utils/logger"));
 const retry_1 = require("../utils/retry");
 class DomainController {
     constructor() {
-        // Error is handled by errorHandler middleware
+        // Creates a batch request to scam adviser api
         this.createBatch = (domains) => __awaiter(this, void 0, void 0, function* () {
-            const batch = yield (0, domainServices_1.createBatch)(domains);
-            batch
-                .then((response) => __awaiter(this, void 0, void 0, function* () {
-                const { data } = response;
-                const domainInput = {
-                    id: null,
-                    batch_id: data.batch_id,
-                    name: data.name,
-                    domains: data.domains,
-                    created_at: Date.now.toString(),
-                    request_status: data.status,
-                };
-                yield (0, domainServices_1.saveDomain)(domainInput);
-                const retryCondition = (status) => {
-                    if (status === "DONE")
-                        return true;
-                    return false;
-                };
-                const p = (0, domainServices_1.getDomainResult)(data.batch_id);
-                const promise = yield (0, retry_1.retryPromise)(p, retryCondition, 5, 500);
-                return promise;
-            }))
-                .catch((e) => {
-                throw new Error(e);
-            });
+            const response = yield domainServices_1.default.createBatch(domains);
+            console.log(response);
+            const { data } = response;
+            const domainInput = {
+                id: null,
+                batch_id: data.batch,
+                name: data.name,
+                domains: data.domains,
+                created_at: new Date(Date.now()).toISOString(),
+                request_status: data.error !== false,
+            };
+            // Saves domain information to db
+            yield domainServices_1.default.saveDomain(domainInput);
+            return data.batch;
         });
         this.createDomainHandler = (req, res) => __awaiter(this, void 0, void 0, function* () {
-            const promise = yield (0, domainServices_1.createBatch)(req.body && req.body.domains);
-            promise
-                .then((response) => __awaiter(this, void 0, void 0, function* () {
-                const { data } = response;
-                const domainInput = {
-                    id: null,
-                    batch_id: data.batch_id,
-                    name: data.name,
-                    domains: data.domains,
-                    created_at: Date.now.toString(),
-                    request_status: data.status,
+            const response = yield this.createBatch(req.body && req.body.domains);
+            const batchId = response;
+            res.sendStatus(201);
+            // Scam adviser process a batch operation, which takes time to respond from their server
+            // This operation wait for it to finish and then save data to db
+            const performBatchOperation = () => __awaiter(this, void 0, void 0, function* () {
+                // Process a retry operation
+                // Until it can fetch/download the details of batch data from scam adviser api
+                const p = () => {
+                    return domainServices_1.default.getDomainResult(batchId);
                 };
-                // saveDomainResult(domainInput);
-                return res.send(201).send("Created");
-            }))
-                .catch((e) => {
-                throw new Error(e);
+                const batch = yield (0, retry_1.retryFetching)(p, 10, 500);
+                const inputs = [];
+                const keys = Object.keys(batch);
+                const values = Object.values(batch);
+                for (let i = 0; i < keys.length; i++) {
+                    const domainName = keys[i];
+                    inputs.push({
+                        id: null,
+                        batch_id: batchId,
+                        name: domainName,
+                        domain: domainName,
+                        created_at: new Date(Date.now()).toISOString(),
+                        status: values[i].status,
+                        site_response: values[i].site_response,
+                        score: values[i].score,
+                        blacklisted: values[i].blacklisted,
+                        valid_ssl: values[i].valid_ssl,
+                    });
+                }
+                yield domainServices_1.default.saveDomainResult(inputs);
+                logger_1.default.info("Save domain data to db successfully");
             });
-            // const batch = await createBatch(req.body);
-            // batch
-            //     .then(async (response: any) => {
-            //         const { data } = response;
-            //         const domainInput: DomainInput = {
-            //             id: null,
-            //             batch_id: data.batch_id,
-            //             name: data.name,
-            //             domains: data.domains,
-            //             created_at: Date.now.toString(),
-            //             request_status: data.status,
-            //         };
-            //         await saveDomain(domainInput);
-            //         const retryCondition = (status: any) => {
-            //             if (status === "DONE") return true;
-            //             if (status === "PROCESSING") return false;
-            //         };
-            //         const p = getDomainResult(data.batch_id);
-            //         const promise = await retryPromise(p, retryCondition, 5, 500);
-            //         promise.then((response) => {
-            //             await saveDomainResult(domainInput);
-            //         });
-            //         return res.send(201).send("Created");
-            //     })
-            //     .catch((e: any) => {
-            //         throw new Error(e);
-            //     });
+            setTimeout(() => {
+                performBatchOperation();
+            }, 0);
+        });
+        this.getDomainByUrl = (req, res) => __awaiter(this, void 0, void 0, function* () {
+            try {
+                console.log("get started");
+                axios_1.default
+                    .get("http://api.scamadviser.cloud/v2/trust/batch/status/?apikey=KYL5KOd9EN0Hl3sQKd4oIs7OfkB6qnNz&batch=6859")
+                    .then((data) => {
+                    console.log(data);
+                    return res.json(data);
+                })
+                    .catch((err) => {
+                    console.log(err);
+                    return res.send(err);
+                });
+                // const domain = await DomainService.getDomainResultByUrl(req.params.url);
+                // res.send(domain);
+            }
+            catch (err) {
+                throw new Error(err);
+            }
+        });
+        this.getDomainByDates = (req, res) => __awaiter(this, void 0, void 0, function* () {
+            try {
+                const domain = yield domainServices_1.default.getDomainResultByDates({
+                    startDate: req.query.startdate,
+                    endDate: req.query.enddate,
+                });
+                res.send(domain);
+            }
+            catch (err) {
+                throw new Error(err);
+            }
         });
     }
 }

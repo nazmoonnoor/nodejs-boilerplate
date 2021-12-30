@@ -59,3 +59,7 @@ cd domain-adviser-api
     `test:coverage` to jest coverages
     `lint` with eslint
     `lint:fix` fix the lint issues
+
+## Note: if you ruy the application using docker container and "Create domain" endpoint throws a 403 exception, on Docker settings, try to update DNS setting 8.8.8.8
+
+https://stackoverflow.com/questions/53434581/unable-to-call-external-api-from-webaplication-hosted-in-docker

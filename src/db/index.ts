@@ -46,6 +46,8 @@ class Database {
             logger.info(`migation fails. ${err}`);
         } finally {
             client.release();
+            // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+            this.pool && this.pool.end();
         }
     };
 }

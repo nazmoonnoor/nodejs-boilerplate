@@ -8,14 +8,9 @@ dotenv.config();
 class DomainService {
     async createBatch(domains: string[]): Promise<any> {
         // Post to scamadviser batch api
-        const config = {
-            headers: {
-                "Content-Type": "application/json",
-            },
-        };
 
         return axios.post(`${process.env.API_BASEURI}/v2/trust/batch/create`, {
-            apikey: process.env.API_KEY,
+            apikey: process.env.SCANADVISER_KEY,
             domains,
         });
     }
@@ -23,7 +18,7 @@ class DomainService {
     async getDomainResult(batch_id: number): Promise<any> {
         // Get scamadviser download api
         return axios.get(
-            `${process.env.API_BASEURI}/v2/trust/batch/download/?apikey=${process.env.API_Key}&batch=${batch_id}`
+            `${process.env.API_BASEURI}/v2/trust/batch/download/?apikey=${process.env.SCANADVISER_KEY}&batch=${batch_id}`
         );
     }
 
@@ -50,6 +45,7 @@ class DomainService {
 
     async getDomainResultByUrl(url: string): Promise<any> {
         try {
+            // external API request
             const result = await DomainResult.findByUrl(url);
             return result;
         } catch (err: any) {

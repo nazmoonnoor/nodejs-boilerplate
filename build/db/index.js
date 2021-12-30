@@ -49,18 +49,28 @@ const poolConfig = {
 };
 class Database {
     constructor() {
+        this.linuxPath = `${__dirname}/migrations/sql`;
+        this.windowsPath = path_1.default.resolve(__dirname, "migrations\\sql");
+        this.initPool = () => {
+            if (this.pool) {
+                this.pool = new pg_1.Pool(poolConfig);
+            }
+        };
         this.runMigrations = () => __awaiter(this, void 0, void 0, function* () {
             const client = yield this.pool.connect();
             try {
-                yield (0, postgres_migrations_1.migrate)({ client }, path_1.default.resolve(__dirname, "migrations\\sql"));
+                yield (0, postgres_migrations_1.migrate)({ client }, this.linuxPath);
             }
             catch (err) {
-                logger_1.default.info("migation fails", err);
+                logger_1.default.info(`migation fails. ${err}`);
             }
             finally {
                 client.release();
+                // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+                this.pool && this.pool.end();
             }
         });
+        logger_1.default.info(`Host: ${poolConfig.host}`);
         this.pool = new pg_1.Pool(poolConfig);
         this.client = new pg_1.Client(poolConfig);
     }

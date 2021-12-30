@@ -4,10 +4,12 @@ services:
     container_name: domain_adviser_web
     build: .
     ports:
-      - "1337:1337"
+      - 1337:1337
     env_file: .env
     depends_on:
       - db
+    dns:
+      - 8.8.8.8
   db:
     container_name: domain_adviser_db
     image: postgres:12.9
@@ -17,7 +19,7 @@ services:
       POSTGRES_PASSWORD: password
       POSTGRES_DB: domain_adviser_db
     ports:
-      - "5432:5432"
+      - 5432:5432
     volumes: [db-data:/var/lib/postgresql/data]
 
 volumes:

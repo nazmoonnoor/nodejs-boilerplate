@@ -8,11 +8,12 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.retryPromise = void 0;
-/**
- * Util function to return a promise which is resolved in provided milliseconds
- */
+exports.retryFetching = void 0;
+const logger_1 = __importDefault(require("./logger"));
 function waitFor(millSeconds) {
     return new Promise((resolve, reject) => {
         setTimeout(() => {
@@ -20,24 +21,16 @@ function waitFor(millSeconds) {
         }, millSeconds);
     });
 }
-function retryPromise(promise, conditionFn, nthTry, delayTime) {
+function retryFetching(fn, nthTry, delayTime) {
     return __awaiter(this, void 0, void 0, function* () {
-        try {
-            const res = yield promise;
-            if (conditionFn(res.data.status)) {
-                if (nthTry === 1) {
-                    return yield Promise.reject();
-                }
-                console.log("retrying", nthTry, "time");
-                // wait for delayTime amount of time before calling this method again
-                yield waitFor(delayTime);
-                return yield retryPromise(promise, conditionFn, nthTry - 1, delayTime);
-            }
-            return yield promise;
+        const response = yield fn();
+        const { data } = response;
+        if (data.message) {
+            logger_1.default.info(new Date(Date.now()).toISOString(), nthTry, "time");
+            yield waitFor(delayTime);
+            return retryFetching(fn, nthTry - 1, delayTime);
         }
-        catch (e) {
-            throw new Error(e);
-        }
+        return data;
     });
 }
-exports.retryPromise = retryPromise;
+exports.retryFetching = retryFetching;

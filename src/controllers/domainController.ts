@@ -9,6 +9,7 @@ class DomainController {
     // Creates a batch request to scam adviser api
     createBatch = async (domains: any): Promise<any> => {
         const response = await DomainService.createBatch(domains);
+        // console.log(response);
         const { data } = response;
         const domainInput: DomainInput = {
             id: null,

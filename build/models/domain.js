@@ -12,33 +12,43 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const pg_1 = require("pg");
 const db_1 = __importDefault(require("../db"));
-const logger_1 = __importDefault(require("../utils/logger"));
 const Domain = {
     create(input) { },
-    findById(id) { },
+    findByUrl(url) { },
 };
 // Create domain
 Domain.create = (input) => __awaiter(void 0, void 0, void 0, function* () {
+    db_1.default.initPool();
     yield db_1.default.pool.connect();
     yield db_1.default.pool
         .query(`INSERT into domains(batch_id, name, domains, created_at, request_status) VALUES($1, $2, $3, $4, $5)`, [input.batch_id, input.name, input.domains, input.created_at, input.request_status])
-        .then((results) => console.table(results.rows))
-        .catch((e) => logger_1.default.error(e))
-        .finally(() => db_1.default.pool.end());
+        .then((results) => {
+        return results.rows;
+    })
+        .catch((err) => {
+        throw new Error(err);
+    })
+        .finally(() => {
+        if (db_1.default && db_1.default.pool)
+            db_1.default.pool.end();
+    });
 });
-Domain.findById = (id) => {
-    const query = new pg_1.Query("SELECT * FROM domains WHERE id = $1::text", [id]);
-    const result = db_1.default.client.query(query);
-    query.on("row", (row) => {
-        logger_1.default.info("row!", row); // { name: 'brianc' }
-    });
-    query.on("end", () => {
-        logger_1.default.info("query done");
-    });
-    query.on("error", (err) => {
-        logger_1.default.info(err.stack);
-    });
-};
+Domain.findByUrl = (url) => __awaiter(void 0, void 0, void 0, function* () {
+    db_1.default.initPool();
+    yield db_1.default.pool.connect();
+    try {
+        const { rows } = yield db_1.default.pool.query("SELECT * FROM domains WHERE domain = $1::text", [
+            url,
+        ]);
+        return rows;
+    }
+    catch (err) {
+        throw new Error(err);
+    }
+    finally {
+        if (db_1.default && db_1.default.pool)
+            db_1.default.pool.end();
+    }
+});
 exports.default = Domain;

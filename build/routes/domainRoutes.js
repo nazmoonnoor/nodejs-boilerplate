@@ -8,6 +8,8 @@ const express_1 = __importDefault(require("express"));
 const domainController_1 = __importDefault(require("../controllers/domainController"));
 const errorHandler_1 = require("../middleware/errorHandler");
 const router = express_1.default.Router();
-router.post("/create", (0, errorHandler_1.use)(domainController_1.default.createDomainHandler));
-// router.get("/absences", use(memberController.getAbsences));
+router
+    .post("/create", (0, errorHandler_1.use)(domainController_1.default.createDomainHandler))
+    .get("/", (0, errorHandler_1.use)(domainController_1.default.getDomainByDates))
+    .get("/:url", (0, errorHandler_1.use)(domainController_1.default.getDomainByUrl));
 exports.default = router;
