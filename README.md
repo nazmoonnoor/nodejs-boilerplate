@@ -49,6 +49,10 @@ cd domain-adviser-api
 - Get domain by url, will return already stored results of a domain, so that changes over time can be seen.
 - Get domain by dates, with start and end date it will return stored results from db.
 
+### Project structure
+
+![scam_checker-project structure drawio](https://user-images.githubusercontent.com/1157439/147714809-7c6b684c-a202-4d38-95fa-bccd122ea157.png)
+
 ## Docker container - pg commands
 
 - `docker exec -it domain_adviser_db /bin/sh`
