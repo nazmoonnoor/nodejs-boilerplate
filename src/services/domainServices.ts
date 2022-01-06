@@ -7,8 +7,19 @@ dotenv.config();
 
 class DomainService {
     async createBatch(domains: string[]): Promise<any> {
-        // Post to scamadviser batch api
+        if (!Array.isArray(domains) || domains.length < 1)
+            throw new Error("Domain is not supplied with payload");
+        for (let i = 0; i < domains.length; i++) {
+            const string = domains[i];
+            if (
+                !string.match(
+                    /(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\\+.~#?&//=]*)/g
+                )
+            )
+                throw new Error("Domain is not valid");
+        }
 
+        // Post to scamadviser batch api
         return axios.post(`${process.env.API_BASEURI}/v2/trust/batch/create`, {
             apikey: process.env.SCANADVISER_KEY,
             domains,
